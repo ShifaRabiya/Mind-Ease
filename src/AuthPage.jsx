@@ -205,15 +205,13 @@ function AuthPage() {
       }
       setMessageType("success");
 
-      setTimeout(() => {
-        if (userType === "student") {
-          navigate("/student-dashboard");
-        } else if (userType === "counselor") {
-          navigate("/counselor-dashboard");
-        } else if (userType === "admin") {
-          navigate("/admin-dashboard");
-        }
-      }, 800);
+      if (userType === "student") {
+        navigate("/student-dashboard");
+      } else if (userType === "counselor") {
+        navigate("/counselor-dashboard");
+      } else if (userType === "admin") {
+        navigate("/admin-dashboard");
+      }
     } catch (err) {
       setMessage(err.message || "Something went wrong");
       setMessageType("error");

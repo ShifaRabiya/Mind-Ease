@@ -6,7 +6,7 @@ import PomodoroTimer from "./pomodoro";
 import BreathingExercise from "./Breathe";
 import BookingModal from "./BookingModal";
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
 function App() {
   useEffect(() => {
@@ -17,8 +17,7 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      <Routes>
+    <Routes>
         <Route
           path="/"
           element={
@@ -33,8 +32,7 @@ function App() {
         <Route path="/breathe" element={<BreathingExercise />} /> {/* <-- added route */}
         <Route path="/book" element={<BookingModal />} /> {/* <-- added route */}
         {/* later add counselor + admin */}
-      </Routes>
-    </Router>
+    </Routes>
   );
 }
 
