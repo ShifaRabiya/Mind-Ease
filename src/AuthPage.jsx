@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 import { scroller } from "react-scroll";
 import { FaChevronLeft } from "react-icons/fa";
 import { motion } from "framer-motion";
@@ -152,9 +153,11 @@ const UserTypeButton = styled(motion.button)`
 
 function AuthPage() {
   const [isSignup, setIsSignup] = useState(false);
-  const [userType, setUserType] = useState("student"); // default
+  const [userType, setUserType] = useState("student");
   const [message, setMessage] = useState(""); 
   const [messageType, setMessageType] = useState(""); 
+
+  const navigate = useNavigate(); // <-- initialize
 
   const scrollToTop = () => {
     scroller.scrollTo("loading-section", {
@@ -163,7 +166,6 @@ function AuthPage() {
     });
   };
 
-  // auto-hide message after 4 seconds
   useEffect(() => {
     if (message) {
       const timer = setTimeout(() => setMessage(""), 4000);
@@ -171,29 +173,23 @@ function AuthPage() {
     }
   }, [message]);
 
-  // Simulated checks
   const handleSubmit = (e) => {
     e.preventDefault();
-    const email = e.target.email.value;
-    const password = e.target.password.value;
 
-    if (isSignup) {
-      if (email === "existing@example.com") {
-        setMessage("Email already exists!");
-        setMessageType("error");
-        return;
+    // for now, simulate login/signup success
+    setMessage(isSignup ? "Account created successfully!" : "Logged in successfully!");
+    setMessageType("success");
+
+    // redirect after 1 second to dashboard
+    setTimeout(() => {
+      if (userType === "student") {
+        navigate("/student-dashboard"); // <-- your route
+      } else if (userType === "counselor") {
+        navigate("/counselor-dashboard");
+      } else if (userType === "admin") {
+        navigate("/admin-dashboard");
       }
-      setMessage("Account created successfully!");
-      setMessageType("success");
-    } else {
-      if (email !== "user@example.com" || password !== "123456") {
-        setMessage("Wrong email or password!");
-        setMessageType("error");
-        return;
-      }
-      setMessage("Logged in successfully!");
-      setMessageType("success");
-    }
+    }, 1000);
   };
 
   return (
@@ -272,7 +268,7 @@ function AuthPage() {
           )}
 
           <Button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.95 }} type="submit">
-            {userType === "admin" ? "Login" : isSignup ? "Create Account" : "Login"}
+            {isSignup ? "Create Account" : "Login"}
           </Button>
         </form>
 
