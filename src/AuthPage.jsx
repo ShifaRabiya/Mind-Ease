@@ -197,10 +197,12 @@ function AuthPage() {
       if (isSignup && userType !== "admin") {
         const res = await registerUser({ email, password, name, userType, emergencyContact, institution });
         if (res?.token) localStorage.setItem("authToken", res.token);
+        if (res?.user) localStorage.setItem("authUser", JSON.stringify(res.user));
         setMessage("Account created successfully!");
       } else {
         const res = await loginUser({ email, password, userType });
         if (res?.token) localStorage.setItem("authToken", res.token);
+        if (res?.user) localStorage.setItem("authUser", JSON.stringify(res.user));
         setMessage("Logged in successfully!");
       }
       setMessageType("success");

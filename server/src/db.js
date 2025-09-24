@@ -60,10 +60,15 @@ function getUserByEmail(email) {
   return db.prepare('SELECT * FROM users WHERE email = ?').get(email);
 }
 
+function getCounselorsByInstitution(institution) {
+  return db.prepare('SELECT id, name, email FROM users WHERE user_type = ? AND institution = ?').all('counselor', institution);
+}
+
 module.exports = {
   db,
   createUser,
   getUserByEmail,
+  getCounselorsByInstitution,
 };
 
 // Optional seed helpers

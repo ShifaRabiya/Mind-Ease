@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { motion } from "framer-motion";
 import { FaTimes, FaCalendarAlt, FaUser, FaHeart } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { getCounselorsByInstitution } from "./api";
 
 // Styled Components
 const PageOverlay = styled(motion.div)`
@@ -247,8 +248,10 @@ const SecondaryButton = styled(Button)`
 `;
 
 // Booking Page Component
-const BookingPage = ({ counselorName = "Dr. Sarah Johnson" }) => {
+const BookingPage = () => {
   const navigate = useNavigate();
+  const [counselorName, setCounselorName] = useState("Dr. Sarah Johnson");
+  const [counselors, setCounselors] = useState([]);
 
   const [formData, setFormData] = useState({
     preferredDate: '',
@@ -262,8 +265,31 @@ const BookingPage = ({ counselorName = "Dr. Sarah Johnson" }) => {
     burnout: '',
     sleepDisorders: '',
     socialIsolation: '',
-    additionalConcerns: ''
+    additionalConcerns: '',
+    selectedCounselor: ''
   });
+
+  React.useEffect(() => {
+    const fetchCounselors = async () => {
+      try {
+        const raw = localStorage.getItem("authUser");
+        if (!raw) return;
+        const user = JSON.parse(raw);
+        const inst = user?.institution;
+        if (!inst) return;
+        
+        const res = await getCounselorsByInstitution(inst);
+        if (res?.counselors?.length > 0) {
+          setCounselors(res.counselors);
+          setCounselorName(res.counselors[0].name); // Default to first counselor
+        }
+      } catch (err) {
+        console.error('Failed to fetch counselors:', err);
+      }
+    };
+    
+    fetchCounselors();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -370,19 +396,27 @@ const BookingPage = ({ counselorName = "Dr. Sarah Johnson" }) => {
                   </Select>
                 </FormGroup>
                 <FormGroup>
-                  <Label htmlFor="urgencyLevel">Urgency Level</Label>
+                  <Label htmlFor="selectedCounselor">Select Counselor</Label>
                   <Select
-                    id="urgencyLevel"
-                    name="urgencyLevel"
-                    value={formData.urgencyLevel}
-                    onChange={handleInputChange}
+                    id="selectedCounselor"
+                    name="selectedCounselor"
+                    value={formData.selectedCounselor}
+                    onChange={(e) => {
+                      const counselorId = e.target.value;
+                      const counselor = counselors.find(c => c.id.toString() === counselorId);
+                      if (counselor) {
+                        setCounselorName(counselor.name);
+                        setFormData(prev => ({ ...prev, selectedCounselor: counselorId }));
+                      }
+                    }}
                     required
                   >
-                    <option value="">Select urgency</option>
-                    <option value="low">Low - Can wait a week</option>
-                    <option value="medium">Medium - Prefer within 3 days</option>
-                    <option value="high">High - Need within 24 hours</option>
-                    <option value="urgent">Urgent - Same day</option>
+                    <option value="">Select counselor</option>
+                    {counselors.map(counselor => (
+                      <option key={counselor.id} value={counselor.id}>
+                        {counselor.name}
+                      </option>
+                    ))}
                   </Select>
                 </FormGroup>
               </FormRow>

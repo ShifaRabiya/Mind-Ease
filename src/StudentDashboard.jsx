@@ -319,7 +319,8 @@ const FloatingIcon = styled(motion.div)`
 `;
 
 // --- React Component ---
-function Dashboard({ userName = "Student" }) {
+function Dashboard({ userName }) {
+  const [name, setName] = useState(userName || "Student");
   const [showGreeting, setShowGreeting] = useState(false);
   const [isChatbot, setIsChatbot] = useState(false);
   const [showCards, setShowCards] = useState(false);
@@ -336,6 +337,16 @@ function Dashboard({ userName = "Student" }) {
   ];
 
   const [currentQuote] = useState(quotes[Math.floor(Math.random() * quotes.length)]);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("authUser");
+      if (raw) {
+        const u = JSON.parse(raw);
+        if (u?.name) setName(u.name);
+      }
+    } catch {}
+  }, []);
 
   useEffect(() => {
   const hasVisited = sessionStorage.getItem("hasGreeted");
@@ -470,7 +481,7 @@ function Dashboard({ userName = "Student" }) {
             exit={{ opacity: 0, y: -100, scale: 0.8 }}
             transition={{ duration: 1, ease: "easeOut" }}
           >
-            Hello {userName}! 👋
+            Hello {name}! 👋
           </Greeting>
         )}
       </AnimatePresence>
@@ -539,7 +550,7 @@ function Dashboard({ userName = "Student" }) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
           >
-            Welcome to your Wellness Hub, {userName}!
+            Welcome to your Wellness Hub, {name}!
           </Welcome>
 
           <Subtitle

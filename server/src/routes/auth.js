@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { createUser, getUserByEmail } = require('../db');
+const { createUser, getUserByEmail, getCounselorsByInstitution } = require('../db');
 
 const router = express.Router();
 
@@ -60,6 +60,17 @@ router.post('/login', async (req, res) => {
     });
   } catch (err) {
     // eslint-disable-next-line no-console
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/counselors/:institution', (req, res) => {
+  try {
+    const { institution } = req.params;
+    const counselors = getCounselorsByInstitution(institution);
+    res.json({ counselors });
+  } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
   }

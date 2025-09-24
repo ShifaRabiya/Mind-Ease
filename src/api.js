@@ -45,4 +45,8 @@ export function loginUser(payload) {
   });
 }
 
+export function getCounselorsByInstitution(institution) {
+  return request(`/api/auth/counselors/${encodeURIComponent(institution)}`);
+}
+
 
