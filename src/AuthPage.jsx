@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { scroller } from "react-scroll";
 import { FaChevronLeft } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { registerUser, loginUser } from "./api";
 
 const Container = styled.div`
   height: 100vh;
@@ -158,6 +159,7 @@ function AuthPage() {
   const [messageType, setMessageType] = useState(""); 
 
   const navigate = useNavigate(); // <-- initialize
+  const location = useLocation();
 
   const scrollToTop = () => {
     scroller.scrollTo("loading-section", {
@@ -167,29 +169,55 @@ function AuthPage() {
   };
 
   useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const mode = params.get("mode");
+    const type = params.get("type");
+    if (mode === "signup") setIsSignup(true);
+    if (mode === "login") setIsSignup(false);
+    if (type && ["student","counselor","admin"].includes(type)) setUserType(type);
+  }, [location.search]);
+
+  useEffect(() => {
     if (message) {
       const timer = setTimeout(() => setMessage(""), 4000);
       return () => clearTimeout(timer);
     }
   }, [message]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email");
+    const password = formData.get("password");
+    const name = formData.get("name");
+    const emergencyContact = formData.get("emergencyContact");
+    const institution = formData.get("institution");
 
-    // for now, simulate login/signup success
-    setMessage(isSignup ? "Account created successfully!" : "Logged in successfully!");
-    setMessageType("success");
-
-    // redirect after 1 second to dashboard
-    setTimeout(() => {
-      if (userType === "student") {
-        navigate("/student-dashboard"); // <-- your route
-      } else if (userType === "counselor") {
-        navigate("/counselor-dashboard");
-      } else if (userType === "admin") {
-        navigate("/admin-dashboard");
+    try {
+      if (isSignup && userType !== "admin") {
+        const res = await registerUser({ email, password, name, userType, emergencyContact, institution });
+        if (res?.token) localStorage.setItem("authToken", res.token);
+        setMessage("Account created successfully!");
+      } else {
+        const res = await loginUser({ email, password, userType });
+        if (res?.token) localStorage.setItem("authToken", res.token);
+        setMessage("Logged in successfully!");
       }
-    }, 1000);
+      setMessageType("success");
+
+      setTimeout(() => {
+        if (userType === "student") {
+          navigate("/student-dashboard");
+        } else if (userType === "counselor") {
+          navigate("/counselor-dashboard");
+        } else if (userType === "admin") {
+          navigate("/admin-dashboard");
+        }
+      }, 800);
+    } catch (err) {
+      setMessage(err.message || "Something went wrong");
+      setMessageType("error");
+    }
   };
 
   return (
@@ -258,7 +286,7 @@ function AuthPage() {
   )}
 
   {isSignup && userType !== "admin" && (
-    <Select
+    <Select name="institution"
       required
       style={{
         width: "100%",
@@ -273,8 +301,16 @@ function AuthPage() {
       }}
     >
       <option value="">Select Institution</option>
-      <option value="collegeA">College A</option>
-      <option value="collegeB">College B</option>
+      <option value="Government Engineering College Thrissur">Government Engineering College Thrissur</option>
+      <option value="College of Engineering Trivandrum">College of Engineering Trivandrum</option>
+      <option value="Government College for Women Thiruvananthapuram">Government College for Women Thiruvananthapuram</option>
+      <option value="Maharaja's College Ernakulam">Maharaja's College Ernakulam</option>
+      <option value="NSS College of Engineering Palakkad">NSS College of Engineering Palakkad</option>
+      <option value="Mar Athanasius College of Engineering Kothamangalam">Mar Athanasius College of Engineering Kothamangalam</option>
+      <option value="TKM College of Engineering Kollam">TKM College of Engineering Kollam</option>
+      <option value="Government Medical College Kottayam">Government Medical College Kottayam</option>
+      <option value="Christ College Irinjalakuda">Christ College Irinjalakuda</option>
+      <option value="St. Thomas College Thrissur">St. Thomas College Thrissur</option>
     </Select>
   )}
 

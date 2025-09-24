@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import { scroller } from "react-scroll";
 
 const HeroSection = styled.section`
@@ -47,7 +48,10 @@ const LoginButton = styled(motion.button)`
 `;
 
 const LoadingPage = () => {
-  const scrollToAuth = () => {
+  const navigate = useNavigate();
+
+  const goToAuth = () => {
+    navigate('/?mode=login');
     scroller.scrollTo("auth-section", {
       smooth: true,
       duration: 800,
@@ -71,7 +75,7 @@ const LoadingPage = () => {
         >
           Bringing you calm, peace, and clarity for better mental well-being.
         </SiteDescription>
-        <LoginButton onClick={scrollToAuth}>
+        <LoginButton onClick={goToAuth}>
           Log in
         </LoginButton>
       </HeroContent>
