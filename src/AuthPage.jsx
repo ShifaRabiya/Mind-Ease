@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { scroller } from "react-scroll";
 import { FaChevronLeft } from "react-icons/fa";
@@ -9,14 +9,14 @@ const Container = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  background: url("/assets/4.png") center/cover no-repeat; /* placeholder bg */
+  background: url("/assets/4.png") center/cover no-repeat;
   position: relative;
   overflow: hidden;
 `;
 
 const Box = styled(motion.div)`
   backdrop-filter: blur(15px);
-  background-color: rgba(255, 255, 255, 0.2); /* glass effect */
+  background-color: rgba(255, 255, 255, 0.2);
   border-radius: 20px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   padding: 40px 30px;
@@ -147,19 +147,53 @@ const UserTypeButton = styled(motion.button)`
   &:hover {
     background: #669751ff;
     color: #fff;
-    scale: 1.05;
   }
 `;
 
 function AuthPage() {
   const [isSignup, setIsSignup] = useState(false);
   const [userType, setUserType] = useState("student"); // default
+  const [message, setMessage] = useState(""); 
+  const [messageType, setMessageType] = useState(""); 
 
   const scrollToTop = () => {
     scroller.scrollTo("loading-section", {
       smooth: true,
       duration: 800,
     });
+  };
+
+  // auto-hide message after 4 seconds
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => setMessage(""), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
+
+  // Simulated checks
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+
+    if (isSignup) {
+      if (email === "existing@example.com") {
+        setMessage("Email already exists!");
+        setMessageType("error");
+        return;
+      }
+      setMessage("Account created successfully!");
+      setMessageType("success");
+    } else {
+      if (email !== "user@example.com" || password !== "123456") {
+        setMessage("Wrong email or password!");
+        setMessageType("error");
+        return;
+      }
+      setMessage("Logged in successfully!");
+      setMessageType("success");
+    }
   };
 
   return (
@@ -182,25 +216,41 @@ function AuthPage() {
           {isSignup ? "Sign Up" : "Login"}
         </Heading>
 
-        {/* User Type Selection */}
         <UserTypeSelector>
-          {["student", "counselor", "admin"].map((type) => (
-            <UserTypeButton
-              key={type}
-              selected={userType === type}
-              onClick={() => setUserType(type)}
-              whileTap={{ scale: 0.95 }}
-            >
-              {type.charAt(0).toUpperCase() + type.slice(1)}
-            </UserTypeButton>
-          ))}
+          {["student", "counselor", "admin"]
+            .filter((type) => !(isSignup && type === "admin")) // hide admin in signup
+            .map((type) => (
+              <UserTypeButton
+                key={type}
+                selected={userType === type}
+                onClick={() => setUserType(type)}
+                whileTap={{ scale: 0.95 }}
+              >
+                {type.charAt(0).toUpperCase() + type.slice(1)}
+              </UserTypeButton>
+            ))}
         </UserTypeSelector>
 
-        <form>
-          {isSignup && <Input type="text" placeholder="Full Name" required />}
-          <Input type="email" placeholder="Email" required />
-          <Input type="password" placeholder="Password" required />
-          {isSignup && (
+        {message && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{
+              marginBottom: "15px",
+              color: messageType === "error" ? "#ff4d4f" : "#4caf50",
+              fontWeight: 500,
+              fontSize: "14px",
+            }}
+          >
+            {message}
+          </motion.div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          {isSignup && userType !== "admin" && <Input name="name" type="text" placeholder="Full Name" required />}
+          <Input name="email" type="email" placeholder="Email" required />
+          <Input name="password" type="password" placeholder="Password" required />
+          {isSignup && userType !== "admin" && (
             <Select
               required
               style={{
@@ -208,9 +258,9 @@ function AuthPage() {
                 padding: "14px",
                 borderRadius: "12px",
                 marginTop: "10px",
-                background: "rgba(255,255,255,0.15)",
-                color: "#fff",
-                border: "none",
+                background: "rgba(255,255,255,0.25)",
+                color: "#1e1e1eff",
+                border: "1px solid black",
                 outline: "none",
                 backdropFilter: "blur(5px)",
               }}
@@ -222,13 +272,19 @@ function AuthPage() {
           )}
 
           <Button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.95 }} type="submit">
-            {isSignup ? "Create Account" : "Login"}
+            {userType === "admin" ? "Login" : isSignup ? "Create Account" : "Login"}
           </Button>
         </form>
 
-        <ToggleText onClick={() => setIsSignup(!isSignup)} whileHover={{ scale: 1.02 }}>
-          {isSignup ? "Already have an account? Login" : "New user? Sign up"}
-        </ToggleText>
+        {/* Hide toggle and signup fields if admin */}
+        {userType !== "admin" && (
+          <>
+            <ToggleText onClick={() => setIsSignup(!isSignup)} whileHover={{ scale: 1.02 }}>
+              {isSignup ? "Already have an account? Login" : "New user? Sign up"}
+            </ToggleText>
+          </>
+        )}
+
       </Box>
     </Container>
   );
