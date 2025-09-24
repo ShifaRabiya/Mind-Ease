@@ -7,15 +7,22 @@ import PomodoroTimer from "./pomodoro";
 import BreathingExercise from "./Breathe";
 import BookingModal from "./BookingModal";
 
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 
 function App() {
+  const location = useLocation();
+  
   useEffect(() => {
-    document.body.style.overflow = "hidden"; // disable manual scroll
+    // Only disable scroll on the landing page (/) and specific pages that need it
+    const noScrollRoutes = ['/', '/pomodoro', '/breathe'];
+    const shouldDisableScroll = noScrollRoutes.includes(location.pathname);
+    
+    document.body.style.overflow = shouldDisableScroll ? "hidden" : "auto";
+    
     return () => {
       document.body.style.overflow = "auto"; // re-enable if unmounted
     };
-  }, []);
+  }, [location.pathname]);
 
   return (
     <Routes>

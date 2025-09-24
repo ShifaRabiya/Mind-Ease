@@ -49,4 +49,26 @@ export function getCounselorsByInstitution(institution) {
   return request(`/api/auth/counselors/${encodeURIComponent(institution)}`);
 }
 
+export function createBooking(bookingData) {
+  return request('/api/auth/bookings', {
+    method: 'POST',
+    body: JSON.stringify(bookingData),
+  });
+}
+
+export function getBookingsByCounselor(counselorId) {
+  return request(`/api/auth/bookings/counselor/${counselorId}`);
+}
+
+export function getBookingsByCounselorName(counselorName) {
+  return request(`/api/auth/bookings/counselor-name/${encodeURIComponent(counselorName)}`);
+}
+
+export function updateBookingStatus(bookingId, status) {
+  return request(`/api/auth/bookings/${bookingId}/status`, {
+    method: 'PUT',
+    body: JSON.stringify({ status }),
+  });
+}
+
 

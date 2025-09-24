@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { motion } from "framer-motion";
 import { FaTimes, FaCalendarAlt, FaUser, FaHeart } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { getCounselorsByInstitution } from "./api";
+import { getCounselorsByInstitution, createBooking } from "./api";
 
 // Styled Components
 const PageOverlay = styled(motion.div)`
@@ -296,11 +296,54 @@ const BookingPage = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Booking submitted:', formData);
-    alert('Booking request submitted successfully! You will receive a confirmation email shortly.');
-    navigate(-1);
+    
+    try {
+      // Get current user info
+      const raw = localStorage.getItem("authUser");
+      if (!raw) {
+        alert('Please login to book a session');
+        return;
+      }
+      const user = JSON.parse(raw);
+      
+      if (!formData.selectedCounselor) {
+        alert('Please select a counselor');
+        return;
+      }
+
+      // Prepare booking data
+      const bookingData = {
+        student_id: user.id,
+        counselor_id: parseInt(formData.selectedCounselor),
+        preferred_date: formData.preferredDate,
+        preferred_time: formData.preferredTime,
+        session_type: formData.sessionType,
+        reason: formData.reason,
+        urgency_level: formData.urgencyLevel,
+        anxiety_level: formData.anxiety,
+        depression_level: formData.depression,
+        academic_stress: formData.academicStress,
+        burnout_level: formData.burnout,
+        sleep_quality: formData.sleepDisorders,
+        social_isolation: formData.socialIsolation,
+        additional_concerns: formData.additionalConcerns
+      };
+
+      // Submit booking
+      const response = await createBooking(bookingData);
+      
+      if (response.message) {
+        alert('Booking request submitted successfully! You will receive a confirmation email shortly.');
+        navigate(-1);
+      } else {
+        throw new Error('Failed to create booking');
+      }
+    } catch (error) {
+      console.error('Booking error:', error);
+      alert('Failed to submit booking. Please try again.');
+    }
   };
 
   const surveyQuestions = [

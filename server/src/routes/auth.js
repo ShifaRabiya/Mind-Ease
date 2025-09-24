@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { createUser, getUserByEmail, getCounselorsByInstitution } = require('../db');
+const { createUser, getUserByEmail, getCounselorsByInstitution, createBooking, getBookingsByCounselor, getBookingsByCounselorName, updateBookingStatus, getUserById } = require('../db');
 
 const router = express.Router();
 
@@ -70,6 +70,105 @@ router.get('/counselors/:institution', (req, res) => {
     const { institution } = req.params;
     const counselors = getCounselorsByInstitution(institution);
     res.json({ counselors });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Booking endpoints
+router.post('/bookings', async (req, res) => {
+  try {
+    const {
+      student_id,
+      counselor_id,
+      preferred_date,
+      preferred_time,
+      session_type,
+      reason,
+      urgency_level,
+      anxiety_level,
+      depression_level,
+      academic_stress,
+      burnout_level,
+      sleep_quality,
+      social_isolation,
+      additional_concerns
+    } = req.body;
+
+    console.log('Creating booking with data:', req.body);
+
+    if (!student_id || !counselor_id || !preferred_date || !preferred_time || !session_type || !reason) {
+      return res.status(400).json({ error: 'Required fields missing' });
+    }
+
+    const bookingId = createBooking({
+      student_id,
+      counselor_id,
+      preferred_date,
+      preferred_time,
+      session_type,
+      reason,
+      urgency_level,
+      anxiety_level,
+      depression_level,
+      academic_stress,
+      burnout_level,
+      sleep_quality,
+      social_isolation,
+      additional_concerns,
+      status: 'pending'
+    });
+
+    console.log('Created booking with ID:', bookingId);
+
+    res.status(201).json({ 
+      message: 'Booking created successfully', 
+      booking_id: bookingId 
+    });
+  } catch (err) {
+    console.error('Error creating booking:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/bookings/counselor/:counselorId', (req, res) => {
+  try {
+    const { counselorId } = req.params;
+    console.log('Fetching bookings for counselor ID:', counselorId);
+    const bookings = getBookingsByCounselor(counselorId);
+    console.log('Found bookings:', bookings);
+    res.json({ bookings });
+  } catch (err) {
+    console.error('Error fetching bookings:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/bookings/counselor-name/:counselorName', (req, res) => {
+  try {
+    const { counselorName } = req.params;
+    console.log('Fetching bookings for counselor name:', counselorName);
+    const bookings = getBookingsByCounselorName(counselorName);
+    console.log('Found bookings by name:', bookings);
+    res.json({ bookings });
+  } catch (err) {
+    console.error('Error fetching bookings by name:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.put('/bookings/:bookingId/status', (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const { status } = req.body;
+    
+    if (!status || !['pending', 'confirmed', 'completed', 'cancelled'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    updateBookingStatus(bookingId, status);
+    res.json({ message: 'Booking status updated successfully' });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });

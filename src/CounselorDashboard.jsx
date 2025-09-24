@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled, { keyframes } from "styled-components";
 import { motion } from "framer-motion";
 import { FaCalendarAlt, FaUser, FaClock, FaEnvelope, FaStickyNote, FaArrowUp } from "react-icons/fa";
+import { getBookingsByCounselor, getBookingsByCounselorName, updateBookingStatus } from "./api";
 
 // Animations
 const float = keyframes`
@@ -18,10 +19,12 @@ const glow = keyframes`
 // Styled Components
 const Container = styled.div`
   min-height: 100vh;
+  height: auto;
   background: linear-gradient(135deg, #f0f8f0 0%, #e8f5e8 50%, #d5ecd5 100%);
   color: #597c49ff;
   position: relative;
   overflow-x: hidden;
+  overflow-y: auto;
   font-family: "Quicksand", sans-serif;
 `;
 
@@ -56,6 +59,8 @@ const MainContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+  min-height: calc(100vh + 500px);
+  padding-bottom: 6rem;
 `;
 
 const Header = styled.div`
@@ -92,7 +97,6 @@ const UserName = styled.div`
   font-weight: bold;
   color: #597c49ff;
   margin-bottom: 0.5rem;
-  font-family: "Gowun Dodum", cursive;
 `;
 
 const UserRole = styled.div`
@@ -209,7 +213,27 @@ const TabBtn = styled(motion.button)`
 `;
 
 const BookingList = styled.div`
+  max-height: 500px;
+  overflow-y: auto;
   padding-right: 10px;
+  
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(136, 166, 120, 0.1);
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #88a678;
+    border-radius: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: #7a9b6a;
+  }
 `;
 
 const BookingItem = styled(motion.div)`
@@ -366,7 +390,7 @@ const ScrollToTopBtn = styled(motion.button)`
   right: 30px;
   width: 50px;
   height: 50px;
-  background: #597c49ff;
+  background: #88a678;
   color: white;
   border: none;
   border-radius: 50%;
@@ -375,111 +399,121 @@ const ScrollToTopBtn = styled(motion.button)`
   align-items: center;
   justify-content: center;
   font-size: 1.2rem;
+  box-shadow: 0 4px 15px rgba(136, 166, 120, 0.3);
+  z-index: 1000;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #7a9b6a;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(136, 166, 120, 0.4);
+  }
+`;
+
+const ScrollToBookingBtn = styled(motion.button)`
+  position: fixed;
+  bottom: 90px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  background: #597c49ff;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
   box-shadow: 0 4px 15px rgba(89, 124, 73, 0.3);
   z-index: 1000;
   transition: all 0.3s ease;
 
   &:hover {
-    background: #669751ff;
+    background: #4a5d42;
     transform: translateY(-3px);
     box-shadow: 0 6px 20px rgba(89, 124, 73, 0.4);
   }
 `;
 
+
 function CounselorDashboard() {
   const [currentFilter, setCurrentFilter] = useState('all');
   const [counselorName, setCounselorName] = useState("Faculty Member");
+  const [counselorId, setCounselorId] = useState(null);
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showScrollToTop, setShowScrollToTop] = useState(false);
 
-  // Sample booking data
-  const [bookings] = useState([
-    {
-      id: "BK001",
-      studentName: "Emma Johnson",
-      studentEmail: "emma.j@email.com",
-      date: "2025-09-25",
-      time: "10:00 AM",
-      duration: "60 minutes",
-      sessionType: "Academic Guidance",
-      status: "upcoming",
-      notes: "First-time student, academic planning"
-    },
-    {
-      id: "BK002",
-      studentName: "Michael Chen",
-      studentEmail: "m.chen@email.com",
-      date: "2025-09-25",
-      time: "2:00 PM",
-      duration: "45 minutes",
-      sessionType: "Course Selection",
-      status: "upcoming",
-      notes: "Help with semester course planning"
-    },
-    {
-      id: "BK003",
-      studentName: "Sofia Rodriguez",
-      studentEmail: "sofia.r@email.com",
-      date: "2025-09-24",
-      time: "11:30 AM",
-      duration: "60 minutes",
-      sessionType: "Academic Support",
-      status: "completed",
-      notes: "Study strategies and time management"
-    },
-    {
-      id: "BK004",
-      studentName: "David Thompson",
-      studentEmail: "d.thompson@email.com",
-      date: "2025-09-25",
-      time: "4:30 PM",
-      duration: "60 minutes",
-      sessionType: "Career Guidance",
-      status: "upcoming",
-      notes: "Discussion about career paths and internships"
-    },
-    {
-      id: "BK005",
-      studentName: "Lisa Park",
-      studentEmail: "lisa.park@email.com",
-      date: "2025-09-23",
-      time: "1:00 PM",
-      duration: "45 minutes",
-      sessionType: "Academic Planning",
-      status: "cancelled",
-      notes: "Student cancelled due to schedule conflict"
-    },
-    {
-      id: "BK006",
-      studentName: "James Wilson",
-      studentEmail: "j.wilson@email.com",
-      date: "2025-09-22",
-      time: "3:00 PM",
-      duration: "60 minutes",
-      sessionType: "Academic Assessment",
-      status: "completed",
-      notes: "Initial academic needs assessment completed"
-    }
-  ]);
-
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("authUser");
-      if (raw) {
-        const user = JSON.parse(raw);
-        if (user?.name) setCounselorName(user.name);
+    const fetchCounselorData = async () => {
+      try {
+        const raw = localStorage.getItem("authUser");
+        if (raw) {
+          const user = JSON.parse(raw);
+          console.log('Counselor user data:', user); // Debug log
+          if (user?.name) {
+            setCounselorName(user.name);
+            setCounselorId(user.id);
+            console.log('Set counselor ID:', user.id); // Debug log
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching counselor data:', error);
       }
-    } catch {}
+    };
+
+    fetchCounselorData();
   }, []);
 
-  // Simple scroll functionality
   useEffect(() => {
+    const fetchBookings = async () => {
+      if (!counselorName || counselorName === "Faculty Member") {
+        console.log('No counselor name or default name, skipping fetch'); // Debug log
+        return;
+      }
+      
+      try {
+        setLoading(true);
+        console.log('Fetching bookings for counselor name:', counselorName); // Debug log
+        const response = await getBookingsByCounselorName(counselorName);
+        console.log('Bookings response:', response); // Debug log
+        if (response?.bookings) {
+          setBookings(response.bookings);
+          console.log('Set bookings:', response.bookings); // Debug log
+        } else {
+          console.log('No bookings in response:', response); // Debug log
+        }
+      } catch (error) {
+        console.error('Error fetching bookings:', error);
+        setBookings([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookings();
+  }, [counselorName]);
+
+  // Enhanced scroll functionality
+  useEffect(() => {
+    // Ensure body can scroll
+    document.body.style.overflow = 'auto';
+    document.documentElement.style.overflow = 'auto';
+    
+    // Enable smooth scrolling for the entire page
+    document.documentElement.style.scrollBehavior = 'smooth';
+    
     const handleScroll = () => {
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      setShowScrollToTop(scrollTop > 300);
+      setShowScrollToTop(scrollTop > 200);
     };
 
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.documentElement.style.scrollBehavior = 'auto';
+    };
   }, []);
 
   const scrollToTop = () => {
@@ -489,13 +523,24 @@ function CounselorDashboard() {
     });
   };
 
+  const scrollToBooking = () => {
+    const bookingSection = document.querySelector('[data-section="booking"]');
+    if (bookingSection) {
+      bookingSection.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
   const filteredBookings = currentFilter === 'all' 
     ? bookings 
     : bookings.filter(booking => booking.status === currentFilter);
 
   const getActionButtons = (booking) => {
     switch(booking.status) {
-      case 'upcoming':
+      case 'pending':
+      case 'confirmed':
         return (
           <>
             <ActionBtn variant="primary" onClick={() => startSession(booking.id)}>
@@ -540,8 +585,19 @@ function CounselorDashboard() {
   };
 
   // Action functions
-  const startSession = (bookingId) => {
-    alert(`Starting session for booking ${bookingId}`);
+  const startSession = async (bookingId) => {
+    try {
+      await updateBookingStatus(bookingId, 'confirmed');
+      alert(`Session started for booking ${bookingId}`);
+      // Refresh bookings
+      const response = await getBookingsByCounselorName(counselorName);
+      if (response?.bookings) {
+        setBookings(response.bookings);
+      }
+    } catch (error) {
+      console.error('Error starting session:', error);
+      alert('Failed to start session');
+    }
   };
 
   const reschedule = (bookingId) => {
@@ -550,12 +606,23 @@ function CounselorDashboard() {
 
   const contactStudent = (bookingId) => {
     const booking = bookings.find(b => b.id === bookingId);
-    alert(`Contacting ${booking.studentName} at ${booking.studentEmail}`);
+    alert(`Contacting ${booking.student_name} at ${booking.student_email}`);
   };
 
-  const cancelSession = (bookingId) => {
+  const cancelSession = async (bookingId) => {
     if (window.confirm('Are you sure you want to cancel this session?')) {
-      alert(`Session ${bookingId} cancelled`);
+      try {
+        await updateBookingStatus(bookingId, 'cancelled');
+        alert(`Session ${bookingId} cancelled`);
+        // Refresh bookings
+        const response = await getBookingsByCounselorName(counselorName);
+        if (response?.bookings) {
+          setBookings(response.bookings);
+        }
+      } catch (error) {
+        console.error('Error cancelling session:', error);
+        alert('Failed to cancel session');
+      }
     }
   };
 
@@ -583,7 +650,7 @@ function CounselorDashboard() {
     }
   };
 
-  const upcomingCount = bookings.filter(b => b.status === 'upcoming').length;
+  const upcomingCount = bookings.filter(b => b.status === 'pending' || b.status === 'confirmed').length;
   const completedThisWeek = bookings.filter(b => b.status === 'completed').length;
 
   return (
@@ -620,15 +687,42 @@ function CounselorDashboard() {
               <StatLabel>Completed This Week</StatLabel>
               <StatValue>{completedThisWeek}</StatValue>
             </StatItem>
-            <StatItem whileHover={{ scale: 1.02 }}>
-              <StatLabel>Pending Reviews</StatLabel>
-              <StatValue>3</StatValue>
-            </StatItem>
           </StatsCard>
 
-          <BookingSection>
+          <BookingSection data-section="booking">
             <BookingTitle>
               <h2>Booking Management</h2>
+              <button 
+                onClick={() => {
+                  if (counselorName && counselorName !== "Faculty Member") {
+                    const fetchBookings = async () => {
+                      try {
+                        setLoading(true);
+                        const response = await getBookingsByCounselorName(counselorName);
+                        if (response?.bookings) {
+                          setBookings(response.bookings);
+                        }
+                      } catch (error) {
+                        console.error('Error fetching bookings:', error);
+                      } finally {
+                        setLoading(false);
+                      }
+                    };
+                    fetchBookings();
+                  }
+                }}
+                style={{
+                  background: '#88a678',
+                  color: 'white',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '20px',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+              >
+                Refresh
+              </button>
             </BookingTitle>
             
             <FilterTabs>
@@ -641,12 +735,12 @@ function CounselorDashboard() {
                 All
               </TabBtn>
               <TabBtn 
-                className={currentFilter === 'upcoming' ? 'active' : ''}
-                onClick={() => setCurrentFilter('upcoming')}
+                className={currentFilter === 'pending' ? 'active' : ''}
+                onClick={() => setCurrentFilter('pending')}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                Upcoming
+                Pending
               </TabBtn>
               <TabBtn 
                 className={currentFilter === 'completed' ? 'active' : ''}
@@ -667,8 +761,18 @@ function CounselorDashboard() {
             </FilterTabs>
 
             <BookingList>
-              {filteredBookings.length === 0 ? (
-                <EmptyState>No bookings found for the selected filter.</EmptyState>
+              {loading ? (
+                <EmptyState>Loading bookings...</EmptyState>
+              ) : filteredBookings.length === 0 ? (
+                <EmptyState>
+                  No bookings found for the selected filter.
+                  <div style={{ marginTop: '10px', fontSize: '12px', color: '#88a678' }}>
+                    Counselor Name: {counselorName} | Total Bookings: {bookings.length}
+                  </div>
+                  <div style={{ marginTop: '5px', fontSize: '10px', color: '#666' }}>
+                    Check browser console for debug logs
+                  </div>
+                </EmptyState>
               ) : (
                 filteredBookings.map((booking, index) => (
                   <BookingItem
@@ -687,27 +791,27 @@ function CounselorDashboard() {
                     <BookingDetails>
                       <DetailItem>
                         <DetailLabel><FaUser /> Student Name</DetailLabel>
-                        <DetailValue>{booking.studentName}</DetailValue>
+                        <DetailValue>{booking.student_name}</DetailValue>
                       </DetailItem>
                       <DetailItem>
                         <DetailLabel><FaEnvelope /> Email</DetailLabel>
-                        <DetailValue>{booking.studentEmail}</DetailValue>
+                        <DetailValue>{booking.student_email}</DetailValue>
                       </DetailItem>
                       <DetailItem>
                         <DetailLabel><FaCalendarAlt /> Date & Time</DetailLabel>
-                        <DetailValue>{booking.date} at {booking.time}</DetailValue>
-                      </DetailItem>
-                      <DetailItem>
-                        <DetailLabel><FaClock /> Duration</DetailLabel>
-                        <DetailValue>{booking.duration}</DetailValue>
+                        <DetailValue>{booking.preferred_date} at {booking.preferred_time}</DetailValue>
                       </DetailItem>
                       <DetailItem>
                         <DetailLabel>Session Type</DetailLabel>
-                        <DetailValue>{booking.sessionType}</DetailValue>
+                        <DetailValue>{booking.session_type}</DetailValue>
+                      </DetailItem>
+                      <DetailItem>
+                        <DetailLabel>Reason</DetailLabel>
+                        <DetailValue>{booking.reason}</DetailValue>
                       </DetailItem>
                       <DetailItem style={{ gridColumn: '1 / -1' }}>
-                        <DetailLabel><FaStickyNote /> Notes</DetailLabel>
-                        <DetailValue>{booking.notes}</DetailValue>
+                        <DetailLabel><FaStickyNote /> Additional Concerns</DetailLabel>
+                        <DetailValue>{booking.additional_concerns || 'None'}</DetailValue>
                       </DetailItem>
                     </BookingDetails>
                     <BookingActions>
@@ -721,25 +825,46 @@ function CounselorDashboard() {
 
           <QuickActions>
             <QuickActionsTitle>Quick Actions</QuickActionsTitle>
-            <QuickActionBtn onClick={sendReminders} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              Send Reminders
-            </QuickActionBtn>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <QuickActionBtn onClick={sendReminders} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                Send Reminders
+              </QuickActionBtn>
+              <QuickActionBtn onClick={() => alert('Export Reports')} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                Export Reports
+              </QuickActionBtn>
+              <QuickActionBtn onClick={() => alert('Schedule Meeting')} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                Schedule Meeting
+              </QuickActionBtn>
+            </div>
           </QuickActions>
         </DashboardContent>
 
-        {/* Simple Scroll to Top Button */}
+        {/* Enhanced Scroll Buttons */}
         {showScrollToTop && (
-          <ScrollToTopBtn
-            onClick={scrollToTop}
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            title="Scroll to Top"
-          >
-            <FaArrowUp />
-          </ScrollToTopBtn>
+          <>
+            <ScrollToBookingBtn
+              onClick={scrollToBooking}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              title="Go to Booking Management"
+            >
+              <FaCalendarAlt />
+            </ScrollToBookingBtn>
+            <ScrollToTopBtn
+              onClick={scrollToTop}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              title="Scroll to Top"
+            >
+              <FaArrowUp />
+            </ScrollToTopBtn>
+          </>
         )}
       </MainContainer>
     </Container>
