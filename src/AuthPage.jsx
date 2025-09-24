@@ -124,8 +124,36 @@ const BackButton = styled(motion.button)`
   }
 `;
 
+const UserTypeSelector = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+`;
+
+const UserTypeButton = styled(motion.button)`
+  flex: 1;
+  margin: 0 5px;
+  padding: 10px 0;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: "Quicksand", cursive;
+  background: ${({ selected }) => (selected ? "#597c49ff" : "rgba(255,255,255,0.15)")};
+  color: ${({ selected }) => (selected ? "#fff" : "#1e1e1eff")};
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+
+  &:hover {
+    background: #669751ff;
+    color: #fff;
+    scale: 1.05;
+  }
+`;
+
 function AuthPage() {
   const [isSignup, setIsSignup] = useState(false);
+  const [userType, setUserType] = useState("student"); // default
 
   const scrollToTop = () => {
     scroller.scrollTo("loading-section", {
@@ -136,10 +164,7 @@ function AuthPage() {
 
   return (
     <Container name="auth-section">
-      <BackButton
-        whileHover={{ scale: 1.05 }}
-        onClick={scrollToTop}
-      >
+      <BackButton whileHover={{ scale: 1.05 }} onClick={scrollToTop}>
         <FaChevronLeft />
         Go Back
       </BackButton>
@@ -157,44 +182,52 @@ function AuthPage() {
           {isSignup ? "Sign Up" : "Login"}
         </Heading>
 
+        {/* User Type Selection */}
+        <UserTypeSelector>
+          {["student", "counselor", "admin"].map((type) => (
+            <UserTypeButton
+              key={type}
+              selected={userType === type}
+              onClick={() => setUserType(type)}
+              whileTap={{ scale: 0.95 }}
+            >
+              {type.charAt(0).toUpperCase() + type.slice(1)}
+            </UserTypeButton>
+          ))}
+        </UserTypeSelector>
+
         <form>
           {isSignup && <Input type="text" placeholder="Full Name" required />}
           <Input type="email" placeholder="Email" required />
           <Input type="password" placeholder="Password" required />
           {isSignup && (
-            <Select required style={{
-              width: "100%",
-              padding: "14px",
-              borderRadius: "12px",
-              marginTop: "10px",
-              background: "rgba(255,255,255,0.15)",
-              color: "#fff",
-              border: "none",
-              outline: "none",
-              backdropFilter: "blur(5px)"
-            }}>
+            <Select
+              required
+              style={{
+                width: "100%",
+                padding: "14px",
+                borderRadius: "12px",
+                marginTop: "10px",
+                background: "rgba(255,255,255,0.15)",
+                color: "#fff",
+                border: "none",
+                outline: "none",
+                backdropFilter: "blur(5px)",
+              }}
+            >
               <option value="">Select Institution</option>
               <option value="collegeA">College A</option>
               <option value="collegeB">College B</option>
             </Select>
           )}
 
-          <Button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.95 }}
-            type="submit"
-          >
+          <Button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.95 }} type="submit">
             {isSignup ? "Create Account" : "Login"}
           </Button>
         </form>
 
-        <ToggleText
-          onClick={() => setIsSignup(!isSignup)}
-          whileHover={{ scale: 1.02 }}
-        >
-          {isSignup
-            ? "Already have an account? Login"
-            : "New user? Sign up"}
+        <ToggleText onClick={() => setIsSignup(!isSignup)} whileHover={{ scale: 1.02 }}>
+          {isSignup ? "Already have an account? Login" : "New user? Sign up"}
         </ToggleText>
       </Box>
     </Container>
