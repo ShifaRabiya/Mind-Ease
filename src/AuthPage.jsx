@@ -1,0 +1,204 @@
+import React, { useState } from "react";
+import styled from "styled-components";
+import { scroller } from "react-scroll";
+import { FaChevronLeft } from "react-icons/fa";
+import { motion } from "framer-motion";
+
+const Container = styled.div`
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: url("/assets/4.png") center/cover no-repeat; /* placeholder bg */
+  position: relative;
+  overflow: hidden;
+`;
+
+const Box = styled(motion.div)`
+  backdrop-filter: blur(15px);
+  background-color: rgba(255, 255, 255, 0.2); /* glass effect */
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  padding: 40px 30px;
+  width: 350px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+`;
+
+const Heading = styled(motion.h2)`
+  margin-bottom: 25px;
+  color: #597c49ff;
+  font-family: "Gowun Dodum", cursive;
+  font-size: 2rem;
+  font-weight: 700;
+`;
+
+const Input = styled.input`
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px;
+  margin: 10px 0;
+  border-radius: 12px;
+  border: 1px solid black;
+  outline: none;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #1e1e1eff;
+  backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
+
+  &::placeholder {
+    color: rgba(34, 34, 34, 0.7);
+  }
+
+  &:focus {
+    background: rgba(255, 255, 255, 0.25);
+  }
+`;
+
+const Select = styled.select`
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px;
+  margin: 10px 0;
+  border-radius: 12px;
+  border: 1px solid black;
+  background: rgba(255, 255, 255, 0.15);
+  color: #1e1e1eff;
+  backdrop-filter: blur(5px);
+  outline: none;
+  font-size: 14px;
+`;
+
+const Button = styled(motion.button)`
+  width: 100%;
+  padding: 14px;
+  margin-top: 15px;
+  border-radius: 12px;
+  border: none;
+  background: #597c49ff;
+  color: white;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: #669751ff;
+    transform: scale(1.03);
+  }
+`;
+
+const ToggleText = styled(motion.p)`
+  margin-top: 20px;
+  font-size: 14px;
+  color: #616161ff;
+  cursor: pointer;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const BackButton = styled(motion.button)`
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #597c49ff;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #669751ff;
+    transform: scale(1.05);
+  }
+`;
+
+function AuthPage() {
+  const [isSignup, setIsSignup] = useState(false);
+
+  const scrollToTop = () => {
+    scroller.scrollTo("loading-section", {
+      smooth: true,
+      duration: 800,
+    });
+  };
+
+  return (
+    <Container name="auth-section">
+      <BackButton
+        whileHover={{ scale: 1.05 }}
+        onClick={scrollToTop}
+      >
+        <FaChevronLeft />
+        Go Back
+      </BackButton>
+
+      <Box
+        initial={{ y: 100, opacity: 0, scale: 0.8 }}
+        animate={{ y: 0, opacity: 1, scale: 1 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+      >
+        <Heading
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8 }}
+        >
+          {isSignup ? "Sign Up" : "Login"}
+        </Heading>
+
+        <form>
+          {isSignup && <Input type="text" placeholder="Full Name" required />}
+          <Input type="email" placeholder="Email" required />
+          <Input type="password" placeholder="Password" required />
+          {isSignup && (
+            <Select required style={{
+              width: "100%",
+              padding: "14px",
+              borderRadius: "12px",
+              marginTop: "10px",
+              background: "rgba(255,255,255,0.15)",
+              color: "#fff",
+              border: "none",
+              outline: "none",
+              backdropFilter: "blur(5px)"
+            }}>
+              <option value="">Select Institution</option>
+              <option value="collegeA">College A</option>
+              <option value="collegeB">College B</option>
+            </Select>
+          )}
+
+          <Button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.95 }}
+            type="submit"
+          >
+            {isSignup ? "Create Account" : "Login"}
+          </Button>
+        </form>
+
+        <ToggleText
+          onClick={() => setIsSignup(!isSignup)}
+          whileHover={{ scale: 1.02 }}
+        >
+          {isSignup
+            ? "Already have an account? Login"
+            : "New user? Sign up"}
+        </ToggleText>
+      </Box>
+    </Container>
+  );
+}
+
+export default AuthPage;
