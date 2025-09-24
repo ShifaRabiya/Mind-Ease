@@ -243,34 +243,46 @@ function AuthPage() {
         )}
 
         <form onSubmit={handleSubmit}>
-          {isSignup && userType !== "admin" && <Input name="name" type="text" placeholder="Full Name" required />}
-          <Input name="email" type="email" placeholder="Email" required />
-          <Input name="password" type="password" placeholder="Password" required />
-          {isSignup && userType !== "admin" && (
-            <Select
-              required
-              style={{
-                width: "100%",
-                padding: "14px",
-                borderRadius: "12px",
-                marginTop: "10px",
-                background: "rgba(255,255,255,0.25)",
-                color: "#1e1e1eff",
-                border: "1px solid black",
-                outline: "none",
-                backdropFilter: "blur(5px)",
-              }}
-            >
-              <option value="">Select Institution</option>
-              <option value="collegeA">College A</option>
-              <option value="collegeB">College B</option>
-            </Select>
-          )}
+  {isSignup && userType !== "admin" && <Input name="name" type="text" placeholder="Full Name" required />}
+  <Input name="email" type="email" placeholder="Email" required />
+  <Input name="password" type="password" placeholder="Password" required />
 
-          <Button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.95 }} type="submit">
-            {isSignup ? "Create Account" : "Login"}
-          </Button>
-        </form>
+  {/* Emergency Contact for student signup */}
+  {isSignup && userType === "student" && (
+    <Input
+      name="emergencyContact"
+      type="tel"
+      placeholder="Emergency Contact Number"
+      required
+    />
+  )}
+
+  {isSignup && userType !== "admin" && (
+    <Select
+      required
+      style={{
+        width: "100%",
+        padding: "14px",
+        borderRadius: "12px",
+        marginTop: "10px",
+        background: "rgba(255,255,255,0.25)",
+        color: "#1e1e1eff",
+        border: "1px solid black",
+        outline: "none",
+        backdropFilter: "blur(5px)",
+      }}
+    >
+      <option value="">Select Institution</option>
+      <option value="collegeA">College A</option>
+      <option value="collegeB">College B</option>
+    </Select>
+  )}
+
+  <Button whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.95 }} type="submit">
+    {isSignup ? "Create Account" : "Login"}
+  </Button>
+</form>
+
 
         {/* Hide toggle and signup fields if admin */}
         {userType !== "admin" && (
