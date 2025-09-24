@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import LoadingPage from "./LoadingPage";
 import AuthPage from "./AuthPage";
 import StudentDashboard from "./StudentDashboard";
+import CounselorDashboard from "./CounselorDashboard";
 import PomodoroTimer from "./pomodoro";
 import BreathingExercise from "./Breathe";
 import BookingModal from "./BookingModal";
@@ -28,6 +29,7 @@ function App() {
           }
         />
         <Route path="/student-dashboard" element={<StudentDashboard />} />
+        <Route path="/counselor-dashboard" element={<CounselorDashboard />} />
         <Route path="/pomodoro" element={<PomodoroTimer />} /> {/* <-- added route */}
         <Route path="/breathe" element={<BreathingExercise />} /> {/* <-- added route */}
         <Route path="/book" element={<BookingModal />} /> {/* <-- added route */}
