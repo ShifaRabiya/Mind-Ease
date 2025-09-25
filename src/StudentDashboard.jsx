@@ -3,6 +3,7 @@ import styled, { keyframes } from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import ChatbotPopup from "./Chatbot";
+import MentalHealthChatbot from "./MentalHealthChatbot";
 import { FaHeart, FaBrain, FaLeaf, FaSun, FaMoon, FaQuoteLeft } from "react-icons/fa";
 
 // --- Animations ---
@@ -601,6 +602,7 @@ function Dashboard({ userName }) {
         </ContentArea>
       )}
       {showChatbot && <ChatbotPopup onClose={() => setShowChatbot(false)} />}
+      <MentalHealthChatbot />
     </Container>
   );
 }
