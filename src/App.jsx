@@ -6,6 +6,9 @@ import CounselorDashboard from "./CounselorDashboard";
 import PomodoroTimer from "./pomodoro";
 import BreathingExercise from "./Breathe";
 import BookingModal from "./BookingModal";
+import RelaxationPage from "./music";
+import MeditationVideosPage from "./videos";
+import MoodTrackerPage from "./journal";
 
 import { Routes, Route, useLocation } from "react-router-dom";
 
@@ -40,6 +43,9 @@ function App() {
         <Route path="/pomodoro" element={<PomodoroTimer />} /> {/* <-- added route */}
         <Route path="/breathe" element={<BreathingExercise />} /> {/* <-- added route */}
         <Route path="/book" element={<BookingModal />} /> {/* <-- added route */}
+        <Route path="/music" element={<RelaxationPage />} /> {/* <-- added route */}
+        <Route path="/videos" element={<MeditationVideosPage />} /> {/* <-- added route */}
+        <Route path="/journal" element={<MoodTrackerPage />} /> {/* <-- added route */}
         {/* later add counselor + admin */}
     </Routes>
   );
