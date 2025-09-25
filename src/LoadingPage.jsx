@@ -76,7 +76,7 @@ const LoadingPage = () => {
           Bringing you calm, peace, and clarity for better mental well-being.
         </SiteDescription>
         <LoginButton onClick={goToAuth}>
-          Log in
+          Get started
         </LoginButton>
       </HeroContent>
     </HeroSection>
