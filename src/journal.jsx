@@ -529,7 +529,7 @@ const MoodTrackerPage = () => {
                 fontSize: '1.5rem',
                 marginBottom: '1.5rem',
                 color: '#1f2937',
-                fontFamily: '"Playwrite DE SAS", cursive'
+                fontFamily: '"Gowun dodum", cursive'
               }}>
                 Overview
               </h3>
@@ -675,7 +675,7 @@ const MoodTrackerPage = () => {
                 <h3 style={{
                   fontSize: '1.5rem',
                   color: '#1f2937',
-                  fontFamily: '"Playwrite DE SAS", cursive',
+                  fontFamily: '"Gowun dodum", cursive',
                   margin: 0
                 }}>
                   Journal Entry
