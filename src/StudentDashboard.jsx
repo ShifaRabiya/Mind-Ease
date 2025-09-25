@@ -418,6 +418,12 @@ function Dashboard({ userName }) {
       description: "Therapeutic sounds for relaxation"
     },
     { 
+      title: "Mood Tracker & Journal", 
+      img: "/assets/journal.png", 
+      route: "/journal",
+      description: "Reflect, track your moods, and improve well-being daily"
+    },
+    { 
       title: "Book Counselor", 
       img: "/assets/book.png", 
       route: "/book",
