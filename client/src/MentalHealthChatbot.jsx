@@ -27,7 +27,7 @@ const ChatbotButton = styled(motion.button)`
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #597c49ff 0%, #5b9782ff 100%);
   border: none;
   color: white;
   cursor: pointer;
@@ -35,12 +35,12 @@ const ChatbotButton = styled(motion.button)`
   align-items: center;
   justify-content: center;
   font-size: 24px;
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 20px rgba(102, 234, 166, 0.4);
   animation: ${pulse} 2s infinite;
   
   &:hover {
     transform: scale(1.1);
-    box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+    box-shadow: 0 6px 25px rgba(102, 234, 157, 0.6);
   }
 `;
 
@@ -60,7 +60,7 @@ const ChatbotWindow = styled(motion.div)`
 `;
 
 const ChatbotHeader = styled.div`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #597c49ff 0%, #5b9782ff 100%);
   color: white;
   padding: 15px 20px;
   display: flex;
@@ -142,7 +142,7 @@ const MessageAvatar = styled.div`
 `;
 
 const BotAvatar = styled(MessageAvatar)`
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #597c49ff 0%, #5b9782ff 100%);
 `;
 
 const UserAvatar = styled(MessageAvatar)`
@@ -194,7 +194,7 @@ const SendButton = styled.button`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #597c49ff 0%, #5b9782ff 100%);
   border: none;
   color: white;
   cursor: pointer;
