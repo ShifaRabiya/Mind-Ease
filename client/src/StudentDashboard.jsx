@@ -479,7 +479,7 @@ function Dashboard({ userName }) {
         </FloatingIcon>
       </FloatingElements>
 
-      {/* Greeting */}
+      {/* Greeting
       <AnimatePresence>
         {showGreeting && (
           <Greeting
@@ -493,8 +493,6 @@ function Dashboard({ userName }) {
         )}
       </AnimatePresence>
 
-      {/* Mascot */}
-      {/* Mascot */}
 <AnimatePresence mode="wait">
   {!showGreeting && (
     <MascotWrapper
@@ -515,7 +513,7 @@ function Dashboard({ userName }) {
       />
     </MascotWrapper>
   )}
-</AnimatePresence>
+</AnimatePresence> */}
 
       {/* Top Section with Quote and Stats */}
       {showCards && (
